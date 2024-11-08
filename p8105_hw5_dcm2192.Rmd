@@ -4,3 +4,19 @@ author: "Dylan Morgan"
 date: "2024-11-15"
 output: github_document
 ---
+
+```{r setup, message = FALSE}
+library(tidyverse)
+library(rvest)
+set.seed(1)
+```
+
+### Problem 1
+
+
+### Problem 2
+
+
+### Problem 3
+
+
