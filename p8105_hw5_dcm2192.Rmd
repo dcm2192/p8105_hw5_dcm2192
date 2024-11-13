@@ -49,13 +49,15 @@ Plot mu 0-6 where null was rejected.
 ```{r}
 sim_results_df |> 
   filter(p_value <= 0.05) |> 
-  ggplot(aes(x = mu)) + 
-  geom_density() + 
-  labs(x = "True value of mu", y = "Proportion of times null was rejected (Power)")
+  group_by(mu) |> 
+  summarize(n_obs = n()) |> 
+  ggplot(aes(x = mu, y = n_obs)) + 
+  geom_point() + 
+  geom_line() + 
+  labs(x = "True value of mu", y = "Number of times null was rejected")
 ```
 
 The relationship between effect size and power is such that the number of times the null is rejected increases as the true value of mu increases. 
-
 
 
 ### Problem 3
