@@ -82,7 +82,34 @@ sim_results_df |>
   labs(x = "True value of mu", y = "Average estimate of mu-hat where null was rejected")
 ```
 
+The sample average of mu-hat across tests for which the null is rejected is approximately equal to the true value of mu because for mu values greater than 3, the average mu-hat estimate is virtually equal to the true value of mu. This is not the case for the average mu-hat estimates for the mu values of 1 and 2, respectively; as the true value of mu increases from 1, however, the average mu-hat estimate gets closer to the true value of mu. 
 
 ### Problem 3
+
+Load raw data.  
+```{r}
+homicide_data <- 
+  read_csv("./data/homicide-data.csv")
+```
+
+The raw data for `homicide_data` contains `r nrow(homicide_data)` observations of `r ncol(homicide_data)` variables. The variables featured in this dataset include the reported date of the homicide; the name, race, age, and sex of the victim; the location in which the homicide occurred; and the status of the case (`disposition`) in terms of whether it remains open with no arrest, or whether it has been closed with or without an arrest. 
+
+Create city_state variable, summarize homicide data by city_state.
+```{r}
+homicide_data <-
+  homicide_data |>
+  mutate(
+    city_state = str_c(city, ", ", state)
+  )
+
+homicide_data |>
+  group_by(city_state) |>
+  summarize(n_obs = n())
+
+homicide_data |> 
+  filter(disposition != "Closed by arrest") |> 
+  group_by(city_state, disposition) |> 
+  summarize(n_obs = n())
+```
 
 
