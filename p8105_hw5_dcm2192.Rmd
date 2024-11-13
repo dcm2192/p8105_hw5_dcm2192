@@ -59,6 +59,29 @@ sim_results_df |>
 
 The relationship between effect size and power is such that the number of times the null is rejected increases as the true value of mu increases. 
 
+Plot avg estimate of mu-hat and true value of mu. 
+```{r}
+sim_results_df |> 
+  group_by(mu) |> 
+  summarize(avg_mu_hat = mean(mu_hat)) |> 
+  ggplot(aes(x = mu, y = avg_mu_hat)) + 
+  geom_point() + 
+  geom_line() + 
+  labs(x = "True value of mu", y = "Average estimate of mu-hat")
+```
+
+Plot avg estimate of mu-hat (where null was rejected) and true value of mu. 
+```{r}
+sim_results_df |> 
+  filter(p_value <= 0.05) |> 
+  group_by(mu) |> 
+  summarize(avg_mu_hat = mean(mu_hat)) |> 
+  ggplot(aes(x = mu, y = avg_mu_hat)) + 
+  geom_point() + 
+  geom_line() + 
+  labs(x = "True value of mu", y = "Average estimate of mu-hat where null was rejected")
+```
+
 
 ### Problem 3
 
