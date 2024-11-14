@@ -112,4 +112,24 @@ homicide_data |>
   summarize(n_obs = n())
 ```
 
+Baltimore prop test.
+```{r}
+baltimore_prop_test <- 
+  prop.test(
+  x = (homicide_data |> 
+         filter(city_state == "Baltimore, MD", 
+                disposition != "Closed by arrest") |> 
+         nrow()), 
+  n = (homicide_data |> 
+         filter(city_state == "Baltimore, MD") |> 
+         nrow()), 
+  p = 0.5) |> 
+  broom::tidy() |> 
+  select(estimate, conf.low, conf.high)
+```
+
+
+
+
+
 
