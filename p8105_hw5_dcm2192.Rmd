@@ -43,6 +43,8 @@ sim_results_df <-
     estimate_df = map(mu, sim_mean_sd)
   ) |> 
   unnest(estimate_df)
+
+head(sim_results_df, 10)
 ```
 
 Plot mu 0-6 where null was rejected. 
@@ -125,7 +127,13 @@ baltimore_prop_test <-
          nrow()), 
   p = 0.5) |> 
   broom::tidy() |> 
-  select(estimate, conf.low, conf.high)
+  select(estimate, conf.low, conf.high) |> 
+  mutate(
+    city_state = "Baltimore, MD"
+  ) |> 
+  relocate(city_state, .before = estimate)
+
+baltimore_prop_test
 ```
 
 Define prop test function to apply to all city_state values.
@@ -155,6 +163,8 @@ prop_test_results_df <-
     prop_est_df = map(city_state, prop_test_func)
   ) |> 
   unnest(prop_est_df)
+
+head(prop_test_results_df, 10)
 ```
 
 
