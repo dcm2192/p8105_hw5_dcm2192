@@ -170,6 +170,8 @@ baltimore_prop_test <-
   ) |> 
   unnest(prop_est_df) |> 
   select(-c(solved, unsolved, total_cases))
+
+baltimore_prop_test
 ```
 
 Map through all city_state values to apply prop test function.
@@ -180,6 +182,8 @@ prop_test_results_df <-
     prop_est_df = map2(unsolved, total_cases, prop_test_func)
   ) |> 
   unnest(prop_est_df)
+
+head(prop_test_results_df, 10)
 ```
 
 Plot prop estimates of unsolved homicides and CIs for each city.
