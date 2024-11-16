@@ -13,6 +13,30 @@ set.seed(1)
 
 ### Problem 1
 
+Define birthday function.
+```{r}
+bday_sim <- function(n) {
+  bdays = sample(1:365, size = n, replace = TRUE)
+  duplicate = length(unique(bdays)) < n
+  return(duplicate)
+}
+```
+
+Plot results of birthday simulations.
+```{r}
+bday_sim_res <- 
+  expand_grid(
+    n = 2:50,
+    iter = 1:10000
+  ) |> 
+  mutate(res = map_lgl(n, bday_sim)) |> 
+  group_by(n) |> 
+  summarize(prob = mean(res))
+
+bday_sim_res |> 
+  ggplot(aes(x = n, y = prob )) + 
+  geom_line()
+```
 
 ### Problem 2
 
@@ -104,67 +128,58 @@ homicide_data <-
     city_state = str_c(city, ", ", state)
   )
 
-homicide_data |>
-  group_by(city_state) |>
-  summarize(n_obs = n())
-
-homicide_data |> 
-  filter(disposition != "Closed by arrest") |> 
+homicide_data_summarized <- 
+  homicide_data |> 
   group_by(city_state, disposition) |> 
-  summarize(n_obs = n())
-```
-
-Baltimore prop test.
-```{r}
-baltimore_prop_test <- 
-  prop.test(
-  x = (homicide_data |> 
-         filter(city_state == "Baltimore, MD", 
-                disposition != "Closed by arrest") |> 
-         nrow()), 
-  n = (homicide_data |> 
-         filter(city_state == "Baltimore, MD") |> 
-         nrow()), 
-  p = 0.5) |> 
-  broom::tidy() |> 
-  select(estimate, conf.low, conf.high) |> 
-  mutate(
-    city_state = "Baltimore, MD"
+  summarize(n_obs = n()) |> 
+  pivot_wider(
+    names_from = "disposition", 
+    values_from = "n_obs"
   ) |> 
-  relocate(city_state, .before = estimate)
+  janitor::clean_names() |> 
+  mutate(
+    unsolved = sum(closed_without_arrest, open_no_arrest, na.rm = TRUE), 
+    total_cases = sum(closed_by_arrest, closed_without_arrest, open_no_arrest, na.rm = TRUE)
+  ) |> 
+  rename(solved = closed_by_arrest) |> 
+  select(solved, unsolved, total_cases)
 
-baltimore_prop_test
+head(homicide_data_summarized, 10)
 ```
 
-Define prop test function to apply to all city_state values.
+Define prop test function.
 ```{r}
-prop_test_func <- function(city_state_param) {
+prop_test_func <- function(unsolved, total_cases) {
   prop.test(
-    x = (homicide_data |> 
-           filter(city_state == city_state_param, 
-                  disposition != "Closed by arrest") |> 
-           nrow()), 
-    n = (homicide_data |> 
-           filter(city_state == city_state_param) |> 
-           nrow()), 
-    p = 0.5) |> 
+    x = unsolved, 
+    n = total_cases, 
+    p = 0.5
+  ) |> 
     broom::tidy() |> 
     select(estimate, conf.low, conf.high)
 }
 ```
 
-Map through city_state in homicide data.
+Baltimore prop test.
+```{r}
+baltimore_prop_test <- 
+  homicide_data_summarized |> 
+  filter(city_state == "Baltimore, MD") |> 
+  mutate(
+    prop_est_df = map2(unsolved, total_cases, prop_test_func)
+  ) |> 
+  unnest(prop_est_df) |> 
+  select(-c(solved, unsolved, total_cases))
+```
+
+Map through all city_state values to apply prop test function.
 ```{r}
 prop_test_results_df <- 
-  expand_grid(
-    city_state = unique(homicide_data$city_state)
-  ) |> 
+  homicide_data_summarized |> 
   mutate(
-    prop_est_df = map(city_state, prop_test_func)
+    prop_est_df = map2(unsolved, total_cases, prop_test_func)
   ) |> 
   unnest(prop_est_df)
-
-head(prop_test_results_df, 10)
 ```
 
 Plot prop estimates of unsolved homicides and CIs for each city.
@@ -177,6 +192,5 @@ prop_test_results_df |>
   labs(x = "City", y = "Estimated Proportion of Unsolved Homicides")
 ```
 
-
-
+After running the proportion test for all cities included in this dataset, it appears that the warning message produced is due to incomplete and/or inaccurate data from Tulsa, AL. As a result, the error bar is much longer for Tulsa, AL, than it is for any other city. This suggests that this observation should probably be removed from the dataset. 
 
