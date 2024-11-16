@@ -71,7 +71,7 @@ sim_results_df <-
 head(sim_results_df, 10)
 ```
 
-Plot mu 0-6 where null was rejected. 
+Plot mu 0-6 where null was rejected.
 ```{r}
 sim_results_df |> 
   filter(p_value <= 0.05) |> 
@@ -112,7 +112,7 @@ The sample average of mu-hat across tests for which the null is rejected is appr
 
 ### Problem 3
 
-Load raw data.  
+Load raw data. 
 ```{r}
 homicide_data <- 
   read_csv("./data/homicide-data.csv")
@@ -120,7 +120,7 @@ homicide_data <-
 
 The raw data for `homicide_data` contains `r nrow(homicide_data)` observations of `r ncol(homicide_data)` variables. The variables featured in this dataset include the reported date of the homicide; the name, race, age, and sex of the victim; the location in which the homicide occurred; and the status of the case (`disposition`) in terms of whether it remains open with no arrest, or whether it has been closed with or without an arrest. 
 
-Create city_state variable, summarize homicide data by city_state.
+Create city_state variable, summarize homicide data by city_state. 
 ```{r}
 homicide_data <-
   homicide_data |>
